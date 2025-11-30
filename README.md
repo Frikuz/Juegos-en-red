@@ -218,3 +218,20 @@ Para los colores se han usado los de la paleta de Rayo McQueen
 
 <img src="./media/image10.jpeg" style="width:3.5431in;height:3.36576in"
  />
+
+#FASE 2
+
+Durante la segunda fase, hemos buscado desarollar una versión funcionald el juego basándonos en los conocimientos que poseíamos de Phaser y JavaScript.
+Hemos realizado las diversas escenas entre las cuales puede un jugador moverse, siendo estas:
+
+- Menu
+- Juego
+- Pausa
+- Créditos
+- Escena de victoria
+
+El jugador se peude desplazar comodamente entre las diversas pantallas del juego y no se queda astacado en ninguna de ellas.
+
+Respecto a la jugabilidad, hemos priorizado el tener un prototipo funcional que refinar en las posteriores fases.
+
+Finalmente, hemos diseño e implementado assets propios, como son los coches, el escenario y el logotipo.
