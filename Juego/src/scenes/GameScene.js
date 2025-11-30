@@ -45,7 +45,6 @@ export class GameScene extends Phaser.Scene {
     this.physics.world.resume();
 
     this.createBackground();
-    this.createObstacles();
     this.createCheckPoint();
     this.setUpPlayers();
     this.setupCollisions();
