@@ -17,6 +17,9 @@ export class GameScene extends Phaser.Scene {
     // Fondo
     this.load.image("game_background", "/assets/images/fondo.png");
 
+    //Colisiones
+    this.load.image('mapaColision', '/assets/images/fondo_colisiones.jpeg');
+    
     // Coches
     this.load.image("coche", "/assets/images/coche.png");
     this.load.image("car_red", "/assets/images/coche2.png");
@@ -64,6 +67,7 @@ export class GameScene extends Phaser.Scene {
   createBackground() {
     // CORREGIR: usar el mismo nombre que en preload
     this.background = this.add.image(640, 480, "game_background");
+    this.background = this.add.image(640, 480, "mapaColision")
     this.background.setDisplaySize(1280, 960);
 
     // Si la imagen no carga, crear fondo de respaldo
@@ -181,6 +185,45 @@ export class GameScene extends Phaser.Scene {
   }
 
   update() {
+   this.players.forEach((car, playerId) => {
+        
+        // 1. Verificación de seguridad: ¿El coche existe y tiene posición?
+        if (car) {
+            // 2. Obtenemos coordenadas enteras
+            let x = Math.floor(car.sprite.body.x);
+            let y = Math.floor(car.sprite.body.y);
+            console.log('x:', x);
+            console.log('y:', y);
+            // 3. Leemos el píxel del mapa de colisiones
+            // Asegúrate de que 'mapaColision' es la key que usaste en preload()
+            let color = this.textures.getPixel(x, y, 'mapaColision');
+
+            if(!color){
+              console.log("no hay color");
+            }
+            if (color) {
+              
+                // LÓGICA DE COLORES
+                // Supongamos que el negro (0,0,0) es CÉSPED
+                if (color.r === 255 && color.g === 255 && color.b === 255) {
+                    // Coche en césped
+                    // Opción A: Modificar velocidad directamente (si es público)
+                     car.body.setMaxVelocity(50); 
+                    console.log("Velocidad Reducida")
+                    // Opción B (Recomendada): Llamar a un método de tu clase Car
+                    if (typeof car.setOffRoad === 'function') {
+                        car.setOffRoad(true);
+                    }
+                } else {
+                    car.body.setMaxVelocity(1000);
+                     console.log("Velocidad Aumentada")
+                    if (typeof car.setOffRoad === 'function') {
+                        car.setOffRoad(false);
+                    }
+                }
+            }
+        }
+    });
     if (this.escKey.isDown && !this.escWasDown) {
       this.togglePause();
     }

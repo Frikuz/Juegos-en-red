@@ -3,7 +3,7 @@ export class Car {
     this.id = id;
     this.scene = scene;
 
-    this.baseSpeed = 250;
+    this.baseSpeed = 300;
 
     this.baseWidth = 30 ;
     this.baseHeight = 50;

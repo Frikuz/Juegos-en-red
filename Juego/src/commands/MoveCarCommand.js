@@ -1,12 +1,14 @@
 import { Command } from "./Command.js";
 
 export class MoveCarCommand extends Command {
-  constructor(scene, car, dirX, dirY) {
+  constructor(scene, car, dirX, dirY, posX, posY) {
     super();
     this.scene = scene;
     this.car = car;
     this.dirX = dirX; // izquierda/derecha
     this.dirY = dirY; // adelante/atrás
+    this.x = posX;
+    this.y = posY;
   }
 
   execute() {
