@@ -48,6 +48,7 @@ export class GameScene extends Phaser.Scene {
     this.physics.world.resume();
 
     this.createBackground();
+    this.createCollisionMap();
     this.createCheckPoint();
     this.setUpPlayers();
     this.setupCollisions();
@@ -63,11 +64,16 @@ export class GameScene extends Phaser.Scene {
       Phaser.Input.Keyboard.KeyCodes.ESC
     );
   }
+  createCollisionMap(){
+    this.collisionMap = this.add.image(0, 0, "mapaColision");
+    this.collisionMap.setOrigin(0, 0);
+    this.collisionMap.setVisible(true);
 
+  }
   createBackground() {
     // CORREGIR: usar el mismo nombre que en preload
     this.background = this.add.image(640, 480, "game_background");
-    this.background = this.add.image(640, 480, "mapaColision")
+    
     this.background.setDisplaySize(1280, 960);
 
     // Si la imagen no carga, crear fondo de respaldo
@@ -185,84 +191,57 @@ export class GameScene extends Phaser.Scene {
   }
 
   update() {
-   this.players.forEach((car, playerId) => {
-        
-        // 1. Verificación de seguridad: ¿El coche existe y tiene posición?
-        if (car) {
-            // 2. Obtenemos coordenadas enteras
-            let x = Math.floor(car.sprite.body.x);
-            let y = Math.floor(car.sprite.body.y);
-            console.log('x:', x);
-            console.log('y:', y);
-            // 3. Leemos el píxel del mapa de colisiones
-            // Asegúrate de que 'mapaColision' es la key que usaste en preload()
-            let color = this.textures.getPixel(x, y, 'mapaColision');
+  this.players.forEach((car) => {
+    const x = Math.floor(car.x);
+    const y = Math.floor(car.y);
 
-            if(!color){
-              console.log("no hay color");
-            }
-            if (color) {
-              
-                // LÓGICA DE COLORES
-                // Supongamos que el negro (0,0,0) es CÉSPED
-                if (color.r === 255 && color.g === 255 && color.b === 255) {
-                    // Coche en césped
-                    // Opción A: Modificar velocidad directamente (si es público)
-                     car.body.setMaxVelocity(50); 
-                    console.log("Velocidad Reducida")
-                    // Opción B (Recomendada): Llamar a un método de tu clase Car
-                    if (typeof car.setOffRoad === 'function') {
-                        car.setOffRoad(true);
-                    }
-                } else {
-                    car.body.setMaxVelocity(1000);
-                     console.log("Velocidad Aumentada")
-                    if (typeof car.setOffRoad === 'function') {
-                        car.setOffRoad(false);
-                    }
-                }
-            }
-        }
-    });
-    if (this.escKey.isDown && !this.escWasDown) {
-      this.togglePause();
+    const color = this.textures.getPixel(x, y, "mapaColision");
+    if (!color) return;
+
+    // BLANCO = fuera de pista
+    if (color.r === 247 && color.g === 247 && color.b === 247) {
+      car.setOffRoad(true);
     }
-    this.escWasDown = this.escKey.isDown;
-
-    if (this.isPaused) {
-      return;
+    // NEGRO = pista
+    else {
+      car.setOffRoad(false);
     }
+  });
 
-    this.inputMappings.forEach((mapping) => {
-      const car = this.players.get(mapping.playerId);
-      let dirX = 0;
-      let dirY = 0;
+  // INPUT
+  this.inputMappings.forEach((mapping) => {
+    const car = this.players.get(mapping.playerId);
+    if (!car) return;
 
-      if (mapping.upKeyObj.isDown) dirY = 1;
-      else if (mapping.downKeyObj.isDown) dirY = -1;
+    let dirX = 0;
+    let dirY = 0;
 
-      if (mapping.leftKeyObj.isDown) dirX = -1;
-      else if (mapping.rightKeyObj.isDown) dirX = 1;
+    if (mapping.upKeyObj.isDown) dirY = 1;
+    else if (mapping.downKeyObj.isDown) dirY = -1;
 
-      const cmd = new MoveCarCommand(this, car, dirX, dirY);
-      this.processor.process(cmd);
-    });
-  }
+    if (mapping.leftKeyObj.isDown) dirX = -1;
+    else if (mapping.rightKeyObj.isDown) dirX = 1;
+
+    this.processor.process(
+      new MoveCarCommand(this, car, dirX, dirY)
+    );
+  });
+}
   setupCollisions() {
-    const car1 = this.players.get("player1").sprite;
-    const car2 = this.players.get("player2").sprite;
+    const car1 = this.players.get("player1");
+    const car2 = this.players.get("player2");
     this.physics.add.collider(car1, car2);
 
     this.players.forEach(player => {
-      this.physics.add.collider(player.sprite, this.obstacles, () => {
+      this.physics.add.collider(player, this.obstacles, () => {
 
-        player.sprite.setVelocity(0, 0);
-        player.sprite.setTint(0xff0000);
-        this.time.delayedCall(150, () => player.sprite.clearTint());
+        player.setVelocity(0, 0);
+        player.setTint(0xff0000);
+        this.time.delayedCall(150, () => player.clearTint());
       });
     });
     this.players.forEach((player, playerId) => {
-      this.physics.add.overlap(player.sprite, this.CheckPointLine, () => {
+      this.physics.add.overlap(player, this.CheckPointLine, () => {
         this.createFinishLine();
         delete(this.CheckPointLine);
         this.setupCollisions();
@@ -270,12 +249,12 @@ export class GameScene extends Phaser.Scene {
     });
 
     this.players.forEach((player, playerId) => {
-      this.physics.add.overlap(player.sprite, this.finishLine, () => {
+      this.physics.add.overlap(player, this.finishLine, () => {
         this.physics.pause();
 
         const winner = playerId;
 
-        player.sprite.setTint(0x00ff00);
+        player.setTint(0x00ff00);
 
         this.scene.start("WinningScene", { winner: winner });
       });
