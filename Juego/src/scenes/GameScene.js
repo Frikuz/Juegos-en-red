@@ -24,6 +24,10 @@ export class GameScene extends Phaser.Scene {
     this.load.image("coche", "/assets/images/coche.png");
     this.load.image("car_red", "/assets/images/coche2.png");
 
+    // Power Ups
+    this.load.image("power_speed", "/assets/images/coche.png");
+    this.load.image("power_slow", "/assets/images/coche2.png");
+    this.load.image("ice", "/assets/images/coche2.png");
     // Evento de carga fallida
     this.load.on('loaderror', (file) => {
       console.warn(`⚠️ No se pudo cargar: ${file.key} (${file.src})`);
@@ -47,12 +51,17 @@ export class GameScene extends Phaser.Scene {
     this.escWasDown = false;
     this.physics.world.resume();
 
+    this.powerUps = this.physics.add.group();
+
     this.createBackground();
     this.createCollisionMap();
     this.createCheckPoint();
     this.setUpPlayers();
     this.setupCollisions();
 
+    this.createPowerUp(400, 300, "speed");
+    this.createPowerUp(800, 500, "slow");
+    this.createPowerUp(600, 400, "ice");
     this.add
       .text(640, 64, "Llega primero a la meta", {
         fontSize: "24px",
@@ -64,6 +73,14 @@ export class GameScene extends Phaser.Scene {
       Phaser.Input.Keyboard.KeyCodes.ESC
     );
   }
+
+  createPowerUp(x, y, type) {
+  const sprite = this.powerUps.create(x, y, `power_${type}`);
+  sprite.type = type;
+
+  sprite.setScale(0.5);
+  sprite.body.allowGravity = false;
+}
   createCollisionMap(){
     this.collisionMap = this.add.image(0, 0, "mapaColision");
     this.collisionMap.setOrigin(0, 0);
@@ -227,6 +244,52 @@ export class GameScene extends Phaser.Scene {
     );
   });
 }
+applyPowerUp(car, powerUp) {
+  switch (powerUp.type) {
+
+    case "speed":
+      console.log("⚡ Speed Boost");
+
+      car.currentSpeed = 500;
+
+      this.time.delayedCall(3000, () => {
+        car.currentSpeed = car.isOffRoad
+          ? car.offRoadSpeed
+          : car.baseSpeed;
+      });
+      break;
+
+    case "slow":
+      console.log("🐌 Slow");
+
+      car.currentSpeed = 80;
+
+      this.time.delayedCall(2000, () => {
+        car.currentSpeed = car.isOffRoad
+          ? car.offRoadSpeed
+          : car.baseSpeed;
+      });
+      break;
+      case "ice":
+      console.log("❄️ ICE! ralentizando al rival");
+
+      const otherCar = this.getOtherCar(car);
+      if (!otherCar) return;
+
+      const originalSpeed = otherCar.currentSpeed;
+
+      otherCar.currentSpeed = originalSpeed * 0.4;
+
+      this.time.delayedCall(3000, () => {
+        // Restaurar según estado real
+        otherCar.currentSpeed = otherCar.isOffRoad
+          ? otherCar.offRoadSpeed
+          : otherCar.baseSpeed;
+      });
+
+      break;
+  }
+}
   setupCollisions() {
     const car1 = this.players.get("player1");
     const car2 = this.players.get("player2");
@@ -259,8 +322,24 @@ export class GameScene extends Phaser.Scene {
         this.scene.start("WinningScene", { winner: winner });
       });
     });
-  };
 
+    this.players.forEach((car) => {
+  this.physics.add.overlap(
+    car,
+    this.powerUps,
+    (car, powerUp) => {
+      this.applyPowerUp(car, powerUp);
+      powerUp.destroy();
+    }
+  );
+});
+  };
+getOtherCar(currentCar) {
+  for (const car of this.players.values()) {
+    if (car !== currentCar) return car;
+  }
+  return null;
+}
 };
 
 
