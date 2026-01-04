@@ -4,10 +4,14 @@ export class WinningScene extends Phaser.Scene {
   constructor() {
     super("WinningScene");
   }
-  create(winner) {
+  init(data) {
+    // data.winner es el jugador que pasamos desde GameScene
+    this.winner = data.winner;
+  }
+  create() {
     
     this.add.rectangle(640, 480, 1280, 960, 0x000000, 0.7);
-    this.add.text(640, 400, `${winner.winner} gana la carrera!`, {
+    this.add.text(640, 400, `${this.winner.id} gana la carrera!`, {
         fontSize: "40px",
         color: "#00ff00"
       })

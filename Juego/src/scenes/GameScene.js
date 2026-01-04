@@ -21,13 +21,14 @@ export class GameScene extends Phaser.Scene {
     this.load.image('mapaColision', '/assets/images/fondo_colisiones.jpeg');
     
     // Coches
-    this.load.image("coche", "/assets/images/coche.png");
-    this.load.image("car_red", "/assets/images/coche2.png");
+    this.load.image("coche", "/assets/images/Coche1.png");
+    this.load.image("car_red", "/assets/images/Coche2.png");
 
     // Power Ups
-    this.load.image("power_speed", "/assets/images/coche.png");
-    this.load.image("power_slow", "/assets/images/coche2.png");
-    this.load.image("ice", "/assets/images/coche2.png");
+    this.load.image("power_ice", "/assets/images/slow_enemigo.png");
+    this.load.image("power_speed", "/assets/images/turbo.png");
+    this.load.image("power_slow", "/assets/images/slow.png");
+
     // Evento de carga fallida
     this.load.on('loaderror', (file) => {
       console.warn(`⚠️ No se pudo cargar: ${file.key} (${file.src})`);
@@ -41,6 +42,7 @@ export class GameScene extends Phaser.Scene {
     this.isPaused = false;
     this.escWasDown = false;
     this.processor = new CommandProcessor();
+    this.MAX_LAPS = 3;
   }
 
 
@@ -54,14 +56,17 @@ export class GameScene extends Phaser.Scene {
     this.powerUps = this.physics.add.group();
 
     this.createBackground();
-    this.createCollisionMap();
     this.createCheckPoint();
+    this.createFinishLine();
+    this.createCollisionMap();
     this.setUpPlayers();
     this.setupCollisions();
+    
 
     this.createPowerUp(400, 300, "speed");
     this.createPowerUp(800, 500, "slow");
-    this.createPowerUp(600, 400, "ice");
+    this.createPowerUp(800, 400, "ice");
+
     this.add
       .text(640, 64, "Llega primero a la meta", {
         fontSize: "24px",
@@ -72,6 +77,12 @@ export class GameScene extends Phaser.Scene {
     this.escKey = this.input.keyboard.addKey(
       Phaser.Input.Keyboard.KeyCodes.ESC
     );
+
+    this.lapText = this.add.text(16, 40, "", {
+  fontSize: "18px",
+  color: "#ffffff",
+  backgroundColor: "#000000"
+}).setDepth(1000);
   }
 
   createPowerUp(x, y, type) {
@@ -84,65 +95,55 @@ export class GameScene extends Phaser.Scene {
   createCollisionMap(){
     this.collisionMap = this.add.image(0, 0, "mapaColision");
     this.collisionMap.setOrigin(0, 0);
-    this.collisionMap.setVisible(true);
+    this.collisionMap.setVisible(false);
 
   }
   createBackground() {
-    // CORREGIR: usar el mismo nombre que en preload
     this.background = this.add.image(640, 480, "game_background");
     
     this.background.setDisplaySize(1280, 960);
-
-    // Si la imagen no carga, crear fondo de respaldo
-    if (!this.textures.exists("game_background")) {
-      this.createFallbackBackground();
-    }
   }
 
-  createFinishLine() {
-  const lineHeight = 10;
-  const startX = 800;
-  const startY = 680;
+createFinishLine() {
+  const x = 800;
+  const y = 680;
+  const width = 10;
+  const height = 120;
 
-  // DIBUJO VISUAL
+  // DEBUG visual
   const g = this.add.graphics();
-  g.fillStyle(0xffffff);
+  g.fillStyle(0xff0000, 0.4);
+  g.fillRect(x, y, width, height);
 
-  for (let i = 0; i < 4; i++) {
-    g.fillRect(startX, startY + i * 25, 15, lineHeight);
-  }
-
-  
-  const sensorWidth = 3;      
-  const sensorHeight = 25 * 4; 
-
-  this.finishLine = this.add.rectangle(
-    startX + sensorWidth / 2,
-    startY + sensorHeight / 2,
-    sensorWidth,
-    sensorHeight,
+  this.finishLine = this.physics.add.staticImage(
+    x + width / 2,
+    y + height / 2,
+    null
   );
 
-  this.physics.add.existing(this.finishLine);
-  this.finishLine.body.setImmovable(true);
+  this.finishLine.body.setSize(width, height);
+  this.finishLine.body.updateFromGameObject();
 }
+
   createCheckPoint() {
-  const lineHeight = 10;
   const startX = 700;
   const startY = 30;
-  
-  const sensorWidth = 3;      
-  const sensorHeight = 25 * 4; 
 
-  this.CheckPointLine = this.add.rectangle(
-    startX + sensorWidth / 2,
-    startY + sensorHeight / 2,
-    sensorWidth,
-    sensorHeight,
-  );
+  const width = 10;
+  const height = 120;
 
-  this.physics.add.existing(this.CheckPointLine);
-  this.CheckPointLine.body.setImmovable(true);
+  // DEBUG visual
+  const graphics = this.add.graphics();
+  graphics.fillStyle(0x00ff00, 0.4);
+  graphics.fillRect(startX, startY, width, height);
+
+  this.CheckPointLine = this.physics.add
+    .staticImage(startX + width / 2, startY + height / 2, null)
+    .setDisplaySize(width, height)
+    .setVisible(false);
+
+  this.CheckPointLine.body.setSize(width, height);
+  this.CheckPointLine.body.updateFromGameObject();
 }
   setUpPlayers() {
     const car1 = new Car(this, "player1", 740, 715, "coche");
@@ -209,14 +210,16 @@ export class GameScene extends Phaser.Scene {
 
   update() {
   this.players.forEach((car) => {
+     console.log(
+  `Jugador: ${car.id} | Vueltas: ${car.laps}/${this.MAX_LAPS}  Paso meta: ${car.passedCheckpoint}`
+);
     const x = Math.floor(car.x);
     const y = Math.floor(car.y);
 
     const color = this.textures.getPixel(x, y, "mapaColision");
     if (!color) return;
-
     // BLANCO = fuera de pista
-    if (color.r === 247 && color.g === 247 && color.b === 247) {
+     if (color.r === 247 && color.g === 247 && color.b === 247) {
       car.setOffRoad(true);
     }
     // NEGRO = pista
@@ -224,6 +227,9 @@ export class GameScene extends Phaser.Scene {
       car.setOffRoad(false);
     }
   });
+
+
+
 
   // INPUT
   this.inputMappings.forEach((mapping) => {
@@ -248,9 +254,8 @@ applyPowerUp(car, powerUp) {
   switch (powerUp.type) {
 
     case "speed":
-      console.log("⚡ Speed Boost");
 
-      car.currentSpeed = 500;
+      car.currentSpeed += 80;
 
       this.time.delayedCall(3000, () => {
         car.currentSpeed = car.isOffRoad
@@ -260,9 +265,8 @@ applyPowerUp(car, powerUp) {
       break;
 
     case "slow":
-      console.log("🐌 Slow");
 
-      car.currentSpeed = 80;
+      car.currentSpeed -= 80;
 
       this.time.delayedCall(2000, () => {
         car.currentSpeed = car.isOffRoad
@@ -271,14 +275,13 @@ applyPowerUp(car, powerUp) {
       });
       break;
       case "ice":
-      console.log("❄️ ICE! ralentizando al rival");
 
       const otherCar = this.getOtherCar(car);
       if (!otherCar) return;
 
       const originalSpeed = otherCar.currentSpeed;
 
-      otherCar.currentSpeed = originalSpeed * 0.4;
+      otherCar.currentSpeed -= originalSpeed * 0.4;
 
       this.time.delayedCall(3000, () => {
         // Restaurar según estado real
@@ -295,34 +298,6 @@ applyPowerUp(car, powerUp) {
     const car2 = this.players.get("player2");
     this.physics.add.collider(car1, car2);
 
-    this.players.forEach(player => {
-      this.physics.add.collider(player, this.obstacles, () => {
-
-        player.setVelocity(0, 0);
-        player.setTint(0xff0000);
-        this.time.delayedCall(150, () => player.clearTint());
-      });
-    });
-    this.players.forEach((player, playerId) => {
-      this.physics.add.overlap(player, this.CheckPointLine, () => {
-        this.createFinishLine();
-        delete(this.CheckPointLine);
-        this.setupCollisions();
-      });
-    });
-
-    this.players.forEach((player, playerId) => {
-      this.physics.add.overlap(player, this.finishLine, () => {
-        this.physics.pause();
-
-        const winner = playerId;
-
-        player.setTint(0x00ff00);
-
-        this.scene.start("WinningScene", { winner: winner });
-      });
-    });
-
     this.players.forEach((car) => {
   this.physics.add.overlap(
     car,
@@ -333,6 +308,29 @@ applyPowerUp(car, powerUp) {
     }
   );
 });
+
+    this.players.forEach((player) => {
+  this.physics.add.overlap(player, this.CheckPointLine, () => {
+    if (!player.passedCheckpoint) {
+      player.passedCheckpoint = true;
+    }
+  });
+});
+
+  this.players.forEach((player) => {
+  this.physics.add.overlap(player, this.finishLine, () => {
+    if (player.passedCheckpoint && player.laps < 1) {
+      player.passedCheckpoint = false;
+      player.laps++;
+    }
+    if(player.passedCheckpoint && player.laps == 1){
+      this.physics.pause();
+      player.setTint(0x00ff00);
+      this.scene.start("WinningScene", { winner: player});
+      }
+  });
+});
+
   };
 getOtherCar(currentCar) {
   for (const car of this.players.values()) {

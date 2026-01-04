@@ -4,6 +4,10 @@ export class Car extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, id, x, y, texture) {
     super(scene, x, y, texture);
 
+this.laps = 0;
+this.passedCheckpoint = false;
+this.justCrossedFinish = false;
+
     this.id = id;
     this.scene = scene;
 
@@ -21,17 +25,30 @@ export class Car extends Phaser.Physics.Arcade.Sprite {
     this.setCollideWorldBounds(true);
     this.body.allowGravity = false;
     this.setOrigin(0.5);
-    this.setScale(0.2);
     this.setDrag(400, 400);
+
+    this.setScale(0.4);
+
+this.body.setSize(
+  this.width * 0.6,
+  this.height * 0.8
+);
+
+this.body.setOffset(
+  this.width * 0.2,
+  this.height * 0.1
+);
+    
   }
 
   setOffRoad(value) {
-    if (this.isOffRoad === value) return;
 
+    if (this.isOffRoad === value) return;
     this.isOffRoad = value;
-    this.currentSpeed = value ? this.offRoadSpeed : this.baseSpeed;
+    this.currentSpeed = value ? this.currentSpeed-=180 : this.currentSpeed+=180;
 
     // Feedback visual opcional
     this.setTint(value ? 0xaaaaaa : 0xffffff);
   }
+
 }
