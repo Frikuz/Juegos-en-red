@@ -115,11 +115,10 @@ createFinishLine() {
   g.fillStyle(0xff0000, 0.4);
   g.fillRect(x, y, width, height);
 
-  this.finishLine = this.physics.add.staticImage(
-    x + width / 2,
-    y + height / 2,
-    null
-  );
+  this.finishLine = this.physics.add
+    .staticImage(x + width / 2, y + height / 2, null)
+    .setDisplaySize(width, height)
+    .setVisible(false);
 
   this.finishLine.body.setSize(width, height);
   this.finishLine.body.updateFromGameObject();
@@ -319,11 +318,11 @@ applyPowerUp(car, powerUp) {
 
   this.players.forEach((player) => {
   this.physics.add.overlap(player, this.finishLine, () => {
-    if (player.passedCheckpoint && player.laps < 1) {
+    if (player.passedCheckpoint && player.laps < this.MAX_LAPS) {
       player.passedCheckpoint = false;
       player.laps++;
     }
-    if(player.passedCheckpoint && player.laps == 1){
+    if(player.passedCheckpoint && player.laps === this.MAX_LAPS){
       this.physics.pause();
       player.setTint(0x00ff00);
       this.scene.start("WinningScene", { winner: player});
