@@ -29,10 +29,14 @@ export class GameScene extends Phaser.Scene {
     this.load.image("power_speed", "/assets/images/turbo.png");
     this.load.image("power_slow", "/assets/images/slow.png");
 
+    //Musica
+    this.load.audio("bgm", "assets/music/Waluigi Pinball 8-BIT - Mario Kart DS (Smash Bros. Version).mp3")
+
     // Evento de carga fallida
     this.load.on('loaderror', (file) => {
       console.warn(`⚠️ No se pudo cargar: ${file.key} (${file.src})`);
     });
+    
   }
 
 
@@ -49,6 +53,9 @@ export class GameScene extends Phaser.Scene {
 
 
   create() {
+    this.sound.stopAll();
+    this.music = this.sound.add("bgm", {loop: true});
+    this.music.play();
     this.isPaused = false;
     this.escWasDown = false;
     this.physics.world.resume();
@@ -63,13 +70,13 @@ export class GameScene extends Phaser.Scene {
     this.setupCollisions();
     
 
-    this.createPowerUp(400, 300, "speed");
-    this.createPowerUp(800, 500, "slow");
-    this.createPowerUp(800, 400, "ice");
+    this.createPowerUp(400, 350, "speed");
+    this.createPowerUp(1050, 150, "slow");
+    this.createPowerUp(250, 75, "ice");
 
     this.add
-      .text(640, 64, "Llega primero a la meta", {
-        fontSize: "24px",
+      .text(640, 15, "¡El primero en dar 3 vueltas gana!", {
+        fontSize: "bold 24px",
         color: "#ffffff"
       })
       .setOrigin(0.5);
@@ -208,6 +215,10 @@ createFinishLine() {
   }
 
   update() {
+    if (this.escKey.isDown && !this.escWasDown) {
+      this.togglePause();
+    }
+    
   this.players.forEach((car) => {
      console.log(
   `Jugador: ${car.id} | Vueltas: ${car.laps}/${this.MAX_LAPS}  Paso meta: ${car.passedCheckpoint}`

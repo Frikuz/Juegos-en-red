@@ -5,50 +5,35 @@ export class HistoriaScene extends Phaser.Scene {
     super("HistoriaScene");
   }
   preload(){
-    this.load.image("fondo", "/assets/images/Menu.png");
-    this.load.image("logo", "/assets/images/logo.png");
+    this.load.image("fondo_hist", "/assets/images/hist.jpeg");
     this.load.image("boton", "/assets/images/boton.png");
+    
   }
   create() {
     
     this.createBackground();
-    this.createBoton();
+    this.add.rectangle(650, 1075, 1000, 600, "#000000").setOrigin(0.5);
+    this.add.text(650, 800, "El famoso piloto Leonardo Sonso se encuentra cerca de su 33º copa",{
+      fontSize: "bold 25px",
+      color: "#00FFFF"
+    }).setOrigin(0.5)
+    this.add.text(650, 830, "Tras cambiar a una nueva carrocería, el triunfo parece inevitable",{
+      fontSize: "bold 25px",
+      color: "#00FFFF"
+    }).setOrigin(0.5)
 
-    this.add
-      .text(350, 60, "J1: WASD   J2: Flechas   ESC: Pausa", {
-        fontSize: "30px",
-        color: "#ffffff"
-      })
-      .setOrigin(0.5);
+    this.add.text(650, 900, "Pulsa para continuar",{
+            fontSize: "bold 75px",
+            color: "#00FF00"
+        }).setOrigin(0.5)
+        .setInteractive({useHandCursor: true}).on("pointerdown", () => {
+            this.scene.start("HistoriaScene2");
+        })
   }
   createBackground() {
-    this.background = this.add.image(640, 480, "fondo");
+    this.background = this.add.image(640, 480, "fondo_hist");
     this.background.setDisplaySize(1280, 960);
-    this.logo = this.add.image(1050, 750, "logo");
-    this.logo.setDisplaySize(this.logo.width * 0.4, this.logo.height * 0.4);
   }
 
- createBoton() {
-  this.botones = [];
-  const posicionesY = [200, 300, 400, 500];
-  const nombres = ["Jugar Local", "Jugar Online", "Creditos", "Configuración"];
-  const escenas = ["GameScene", "GameSceneOnline", "CreditosScene", "ConfiguracionScene"];
-
-  posicionesY.forEach((y, i) => {
-    const btnImg = this.add.image(1100, y, "boton").setInteractive({ useHandCursor: true });
-    const btnText = this.add.text(1100, y, nombres[i], {
-      fontSize: "30px",
-      color: "#ffffff"
-    }).setOrigin(0.5);
-
-    this.botones.push({ btnImg, btnText });
-
-    btnImg.on("pointerdown", () => {
-      this.scene.start(escenas[i]);
-    });
-
-    btnImg.on("pointerover", () => btnText.setColor("#00ff88"));
-    btnImg.on("pointerout", () => btnText.setColor("#ffffff"));
-  });
 }
-}
+

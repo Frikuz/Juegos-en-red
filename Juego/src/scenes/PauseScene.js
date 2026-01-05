@@ -40,6 +40,7 @@ export class PauseScene extends Phaser.Scene {
       .on("pointerover", () => menuBtn.setColor("#ff8888"))
       .on("pointerout", () => menuBtn.setColor("#ffffff"))
       .on("pointerdown", () => {
+        this.sound.stopAll();
         this.scene.stop(data.originalScene);
         this.scene.start("MenuScene");
       });
