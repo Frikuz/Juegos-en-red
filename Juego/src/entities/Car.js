@@ -45,7 +45,7 @@ this.body.setOffset(
 
     if (this.isOffRoad === value) return;
     this.isOffRoad = value;
-    this.currentSpeed = value ? this.currentSpeed-=180 : this.currentSpeed+=180;
+    this.currentSpeed = value ? this.currentSpeed-=230 : this.currentSpeed+=230;
 
     // Feedback visual opcional
     this.setTint(value ? 0xaaaaaa : 0xffffff);

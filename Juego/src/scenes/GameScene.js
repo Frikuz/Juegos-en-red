@@ -46,7 +46,7 @@ export class GameScene extends Phaser.Scene {
     this.isPaused = false;
     this.escWasDown = false;
     this.processor = new CommandProcessor();
-    this.MAX_LAPS = 3;
+    this.MAX_LAPS = 2;
   }
 
 
