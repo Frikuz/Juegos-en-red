@@ -236,3 +236,20 @@ Respecto a la jugabilidad, hemos priorizado el tener un prototipo funcional que 
 
 Finalmente, hemos diseño e implementado assets propios, como son los coches, el escenario y el logotipo.
 
+# FASE 3   
+
+Tras el feedback recibido de la fase 2, nos hemos centrado en solucionar los problemas graves y desarrollar la API REST.
+
+Las mejoras se han basado en:
+
+- Añadir power-ups
+- Añadir música
+- Añadir historia
+- Retocar el menú
+- Retocar la pantalla de juego
+
+# FASE 4
+
+En la fase 4, nos hemos centrado en desarrollar los websockets y así poder tener dos jugadores a la vez.
+Tras implementarlo de primeras, tuvimos que solucionar problemas, ya que las colisiones no se traducían correctamente y los power-ups no aparecían
+
