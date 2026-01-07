@@ -15,10 +15,9 @@ this.justCrossedFinish = false;
     scene.physics.add.existing(this);
 
     // VELOCIDADES
-    this.baseSpeed = 300;
-    this.offRoadSpeed = 120;
+    this.baseSpeed = 250;
     this.currentSpeed = this.baseSpeed;
-
+    this.offRoadSpeed= this.currentSpeed - 120;    
     this.isOffRoad = false;
 
     // CONFIG FÍSICA
@@ -26,26 +25,15 @@ this.justCrossedFinish = false;
     this.body.allowGravity = false;
     this.setOrigin(0.5);
     this.setDrag(400, 400);
-
-    this.setScale(0.4);
-
-this.body.setSize(
-  this.width * 0.6,
-  this.height * 0.8
-);
-
-this.body.setOffset(
-  this.width * 0.2,
-  this.height * 0.1
-);
     
+    this.setScale(0.8);
   }
 
   setOffRoad(value) {
 
     if (this.isOffRoad === value) return;
     this.isOffRoad = value;
-    this.currentSpeed = value ? this.currentSpeed-=230 : this.currentSpeed+=230;
+    this.currentSpeed = value ? this.currentSpeed-=120 : this.currentSpeed+=120;
 
     // Feedback visual opcional
     this.setTint(value ? 0xaaaaaa : 0xffffff);

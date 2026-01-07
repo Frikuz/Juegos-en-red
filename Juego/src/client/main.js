@@ -22,7 +22,7 @@ const config = {
       debug: false
     }
   },
-  scene: [PreHistoriaScene, MenuScene, HistoriaScene, GameScene, PauseScene, WinningScene,GameSceneOnline, CreditosScene, HistoriaScene2],
+  scene: [PreHistoriaScene, HistoriaScene,MenuScene, GameScene, PauseScene, WinningScene,GameSceneOnline, CreditosScene, HistoriaScene2],
   backgroundColor: "#1a1a2e"
 };
 

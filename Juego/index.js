@@ -132,11 +132,17 @@ wss.on('connection', (ws) => {
           // Ahora enviamos x, y, angle
           gameRoomService.handlePlayerMove(ws, data);
           break;
-
+        
+        case 'playerHit':
+          // Cuando un jugador golpea, avisamos al servicio de salas
+          gameRoomService.handlePlayerHit(ws, data);
+          break;
+          
         case 'raceFinish':
           gameRoomService.handleRaceFinish(ws);
           break;
 
+          
         default:
           console.log('Mensaje desconocido:', data.type);
       }

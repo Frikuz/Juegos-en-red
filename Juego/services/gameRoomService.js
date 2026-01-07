@@ -18,6 +18,7 @@ export function createGameRoomService() {
     };
 
     rooms.set(roomId, room);
+    // Guardamos el ID de la sala en el propio socket para recuperarlo rápido luego
     player1Ws.roomId = roomId;
     player2Ws.roomId = roomId;
 
@@ -45,6 +46,30 @@ export function createGameRoomService() {
         speed: data.speed
       }));
     }
+  }
+
+  // === CORREGIDO: Lógica para reenviar el golpe ===
+  function handlePlayerHit(senderWs, data) {
+      // 1. Usamos ws.roomId (igual que en handlePlayerMove)
+      const roomId = senderWs.roomId;
+      if (!roomId) return;
+
+      const room = rooms.get(roomId);
+      if (!room || !room.active) return;
+
+      // 2. Identificamos al oponente (igual que arriba)
+      // Como players es un OBJETO, no podemos usar forEach.
+      const isPlayer1 = room.players.player1.ws === senderWs;
+      const opponent = isPlayer1 ? room.players.player2.ws : room.players.player1.ws;
+
+      // 3. Enviamos el golpe SOLO al oponente
+      if (opponent.readyState === 1) {
+        opponent.send(JSON.stringify({
+          type: 'playerHit',
+          velocityX: data.velocityX,
+          velocityY: data.velocityY
+        }));
+      }
   }
 
   // Gestionar fin de carrera (cuando alguien gana)
@@ -88,9 +113,11 @@ export function createGameRoomService() {
     rooms.delete(roomId);
   }
 
+  // === IMPORTANTE: Añadimos handlePlayerHit al return ===
   return {
     createRoom,
     handlePlayerMove,
+    handlePlayerHit, // <--- AHORA SÍ ESTÁ DISPONIBLE PARA index.js
     handleRaceFinish,
     handleDisconnect
   };

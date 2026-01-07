@@ -13,22 +13,22 @@ export class GameScene extends Phaser.Scene {
     console.log("🔄 Cargando recursos...");
 
     // Fondo
-    this.load.image("game_background", "/assets/images/fondo.png");
+    this.load.image("game_background", "./assets/images/fondo.png");
 
     //Colisiones
-    this.load.image('mapaColision', '/assets/images/fondo_colisiones.jpeg');
+    this.load.image('mapaColision', './assets/images/fondo_colisiones.jpeg');
     
     // Coches
-    this.load.image("coche", "/assets/images/Coche1.png");
-    this.load.image("car_red", "/assets/images/Coche2.png");
+    this.load.image("coche", "./assets/images/Coche1.png");
+    this.load.image("car_red", "./assets/images/Coche2.png");
 
     // Power Ups
-    this.load.image("power_ice", "/assets/images/slow_enemigo.png");
-    this.load.image("power_speed", "/assets/images/turbo.png");
-    this.load.image("power_slow", "/assets/images/slow.png");
+    this.load.image("power_ice", "./assets/images/slow_enemigo.png");
+    this.load.image("power_speed", "./assets/images/turbo.png");
+    this.load.image("power_slow", "./assets/images/slow.png");
 
     //Musica
-    this.load.audio("bgm", "assets/music/Waluigi Pinball 8-BIT - Mario Kart DS (Smash Bros. Version).mp3")
+    this.load.audio("bgm", "./assets/music/Waluigi Pinball 8-BIT - Mario Kart DS (Smash Bros. Version).mp3")
 
     // Evento de carga fallida
     this.load.on('loaderror', (file) => {
@@ -45,6 +45,7 @@ export class GameScene extends Phaser.Scene {
     this.escWasDown = false;
     this.processor = new CommandProcessor();
     this.MAX_LAPS = 2;
+    this.poderes= ["speed","slow","ice"];
   }
 
 
@@ -68,10 +69,11 @@ export class GameScene extends Phaser.Scene {
     this.setupCollisions();
     
 
-    this.createPowerUp(400, 350, "speed");
-    this.createPowerUp(1050, 150, "slow");
-    this.createPowerUp(250, 75, "ice");
-
+    this.createPowerUp(400, 350, this.poderes[Math.floor(Math.random()*3)]);
+    this.createPowerUp(1050, 150, this.poderes[Math.floor(Math.random()*3)]);
+    this.createPowerUp(250, 75,this.poderes[Math.floor(Math.random()*3)]);
+    this.createPowerUp(250, 700, this.poderes[Math.floor(Math.random()*3)]);
+    this.createPowerUp(1100, 650,this.poderes[Math.floor(Math.random()*3)]);
     this.add
       .text(640, 15, "¡El primero en dar 3 vueltas gana!", {
         fontSize: "bold 24px",
@@ -217,13 +219,13 @@ createFinishLine() {
       this.togglePause();
     }
     
+  
   this.players.forEach((car) => {
-     console.log(
-  `Jugador: ${car.id} | Vueltas: ${car.laps}/${this.MAX_LAPS}  Paso meta: ${car.passedCheckpoint}`
-);
+
     const x = Math.floor(car.x);
     const y = Math.floor(car.y);
 
+    console.log("Velocidad: ", car.currentSpeed);
     const color = this.textures.getPixel(x, y, "mapaColision");
     if (!color) return;
     // BLANCO = fuera de pista
@@ -311,11 +313,24 @@ applyPowerUp(car, powerUp) {
     car,
     this.powerUps,
     (car, powerUp) => {
+      if (!powerUp.active) return;
+
       this.applyPowerUp(car, powerUp);
-      powerUp.destroy();
+
+      powerUp.disableBody(true, true);
+
+      this.time.delayedCall(2500, () => {
+        
+        // A. Elegir un nuevo tipo aleatorio (opcional, para que cambie de color)
+        const nuevoPoder = this.poderes[Math.floor(Math.random()*3)];
+        powerUp.setTexture(`power_${nuevoPoder}`); // Cambiar imagen
+        powerUp.type = nuevoPoder;                 // Actualizar lógica
+
+        powerUp.enableBody(true, powerUp.x, powerUp.y, true, true);
+        });
+      });
     }
   );
-});
 
     this.players.forEach((player) => {
   this.physics.add.overlap(player, this.CheckPointLine, () => {
