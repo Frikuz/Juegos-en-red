@@ -5,10 +5,8 @@ import { MoveCarCommand } from "../commands/MoveCarCommand.js";
 import { PauseGameCommand } from "../commands/PauseGameCommand.js";
 
 export class GameScene extends Phaser.Scene {
-  constructor() {
-    super("GameScene");
-    this.obstacles = [];
-    this.obstacleGroup = null;
+  constructor(key = "GameScene") {
+    super(key); 
   }
 
   preload() {

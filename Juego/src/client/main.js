@@ -2,11 +2,13 @@ import Phaser from "phaser";
 import { HistoriaScene } from "./scenes/HistoriaScene.js";
 import { MenuScene } from "./scenes/MenuScene.js";
 import { GameScene } from "./scenes/GameScene.js";
+import { GameSceneOnline } from "./scenes/GameSceneOnline.js";
 import { PauseScene } from "./scenes/PauseScene.js";
 import { WinningScene } from "./scenes/WinningScene.js";
 import { CreditosScene } from "./scenes/CreditosScene.js";
 import {PreHistoriaScene} from "./scenes/PreHistoriaScene.js";
 import { HistoriaScene2 } from "./scenes/HistoriaScene2.js";
+
 
 const config = {
   type: Phaser.AUTO,
@@ -20,7 +22,7 @@ const config = {
       debug: false
     }
   },
-  scene: [PreHistoriaScene, MenuScene, HistoriaScene, GameScene, PauseScene, WinningScene, CreditosScene, HistoriaScene2],
+  scene: [PreHistoriaScene, MenuScene, HistoriaScene, GameScene, PauseScene, WinningScene,GameSceneOnline, CreditosScene, HistoriaScene2],
   backgroundColor: "#1a1a2e"
 };
 
