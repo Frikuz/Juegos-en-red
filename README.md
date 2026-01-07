@@ -251,5 +251,8 @@ Las mejoras se han basado en:
 # FASE 4
 
 En la fase 4, nos hemos centrado en desarrollar los websockets y así poder tener dos jugadores a la vez.
-Tras implementarlo de primeras, tuvimos que solucionar problemas, ya que las colisiones no se traducían correctamente y los power-ups no aparecían
+Tras implementarlo de primeras, tuvimos que solucionar problemas, ya que las colisiones no se traducían correctamente y los power-ups no aparecían.
+
+No nos planteamos entregar la fase 3 por separado previa a la implementación de los websockets, por lo que ambas entregas son las mismas.
+
 
