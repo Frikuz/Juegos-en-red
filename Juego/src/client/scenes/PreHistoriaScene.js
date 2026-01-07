@@ -3,7 +3,7 @@ import Phaser from "phaser";
 export class PreHistoriaScene extends Phaser.Scene{
     preload(){
         this.load.image("boton", "/assets/images/boton.png");
-        this.load.audio("theme", "assets/music/F1 theme 8-bit version.mp3");
+        this.load.audio("theme", "/assets/music/F1.mp3");
     }
 
     create(){

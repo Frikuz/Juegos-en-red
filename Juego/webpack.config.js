@@ -11,7 +11,7 @@ module.exports = {
   mode: "development",
   devtool: "inline-source-map",
   devServer: {
-     static: path.join(__dirname, 'public'),
+     static: path.join(__dirname, 'dist'),
     hot: true,
     port: 8080
   },
@@ -20,7 +20,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: "./public/index.html",
+      template: "./dist/index.html",
       inject: false
     })
   ],

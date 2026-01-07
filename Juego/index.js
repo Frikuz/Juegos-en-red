@@ -77,7 +77,7 @@ app.use((req, res, next) => {
 });
 
 // Servir archivos estáticos del juego (dist/)
-app.use(express.static(path.join(__dirname, '../../dist')));
+app.use(express.static(path.join(__dirname, 'dist')));
 
 // ==================== RUTAS ====================
 
@@ -99,7 +99,7 @@ app.use((req, res, next) => {
   }
 
   // Para cualquier otra ruta, servir el index.html del juego
-  res.sendFile(path.join(__dirname, '../../dist/index.html'));
+  res.sendFile(path.join(__dirname, 'dist/index.html'));
 });
 
 // ==================== ERROR HANDLER ====================
