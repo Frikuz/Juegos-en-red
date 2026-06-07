@@ -15,6 +15,8 @@ export class GameScene extends Phaser.Scene {
     // Fondo
     this.load.image("game_background", "./assets/images/fondo.png");
 
+    //boton
+    this.load.image("boton", './assets/images/boton.png')
     //Colisiones
     this.load.image('mapaColision', './assets/images/fondo_colisiones.jpeg');
     
@@ -117,11 +119,6 @@ createFinishLine() {
   const width = 10;
   const height = 120;
 
-  // DEBUG visual
-  const g = this.add.graphics();
-  g.fillStyle(0xff0000, 0.4);
-  g.fillRect(x, y, width, height);
-
   this.finishLine = this.physics.add
     .staticImage(x + width / 2, y + height / 2, null)
     .setDisplaySize(width, height)
@@ -138,10 +135,7 @@ createFinishLine() {
   const width = 10;
   const height = 120;
 
-  // DEBUG visual
-  const graphics = this.add.graphics();
-  graphics.fillStyle(0x00ff00, 0.4);
-  graphics.fillRect(startX, startY, width, height);
+
 
   this.CheckPointLine = this.physics.add
     .staticImage(startX + width / 2, startY + height / 2, null)

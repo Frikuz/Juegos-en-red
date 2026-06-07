@@ -15,7 +15,7 @@ export class MenuScene extends Phaser.Scene {
     this.createBoton();
 
     this.add
-      .text(350, 60, "J1: WASD   J2: Flechas   ESC: Pausa", {
+      .text(350, 60, "J1: WASD   J2: Flechas ", {
         fontSize: "30px",
         color: "#ffffff"
       })
@@ -30,9 +30,9 @@ export class MenuScene extends Phaser.Scene {
 
  createBoton() {
   this.botones = [];
-  const posicionesY = [200, 300, 400, 500];
-  const nombres = ["Jugar Local", "Jugar Online", "Creditos", "Configuración"];
-  const escenas = ["GameScene", "GameSceneOnline", "CreditosScene", "ConfiguracionScene"];
+  const posicionesY = [200, 300, 400];
+  const nombres = ["Jugar Local", "Jugar Online", "Creditos"];
+  const escenas = ["GameScene", "GameSceneOnline", "CreditosScene"];
 
   posicionesY.forEach((y, i) => {
     const btnImg = this.add.image(1100, y, "boton").setInteractive({ useHandCursor: true });

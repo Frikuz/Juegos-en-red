@@ -22,20 +22,16 @@ export class GameSceneOnline extends GameScene {
     this.createCheckPoint();
     this.createFinishLine();
 
-     this.powerUps = this.physics.add.group();
+    this.powerUps = this.physics.add.group();
 
     this.createPowerUp(400, 350, this.poderes[0]);
     this.createPowerUp(1050, 150, this.poderes[2]);
-    this.createPowerUp(250, 75,this.poderes[1]);
+    this.createPowerUp(250, 75, this.poderes[1]);
     this.createPowerUp(250, 700, this.poderes[0]);
-    this.createPowerUp(1100, 650,this.poderes[0]);
+    this.createPowerUp(1100, 650, this.poderes[0]);
 
-    
-
-
-    // --- CORRECCIÓN: Definir la tecla ESC para evitar el error en super.update() ---
     this.escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
-    // ------------------------------------------------------------------------------
+
 
     this.sound.stopAll();
     this.music = this.sound.add("bgm", { loop: true });
@@ -47,17 +43,16 @@ export class GameSceneOnline extends GameScene {
       backgroundColor: "#000000"
     }).setOrigin(0.5).setDepth(2000);
 
-    // 3. Iniciar conexión WebSocket
     this.setupSocket();
   }
 
-   createPowerUp(x, y, type) {
-  const sprite = this.powerUps.create(x, y, `power_${type}`);
-  sprite.type = type;
+  createPowerUp(x, y, type) {
+    const sprite = this.powerUps.create(x, y, `power_${type}`);
+    sprite.type = type;
 
-  sprite.setScale(0.5);
-  sprite.body.allowGravity = false;
-}
+    sprite.setScale(0.5);
+    sprite.body.allowGravity = false;
+  }
   setupSocket() {
     this.socket = new WebSocket('ws://localhost:3000');
 
@@ -72,7 +67,9 @@ export class GameSceneOnline extends GameScene {
     };
 
     this.socket.onclose = () => {
-      this.waitingText.setText("Desconectado del servidor").setVisible(true);
+      if (this.scene.isActive()) {
+          this.handleDisconnection("Desconectado del servidor");
+      }
     };
   }
 
@@ -94,27 +91,26 @@ export class GameSceneOnline extends GameScene {
       case 'playerHit':
         const myCar = this.players.get(this.myRole);
         if (myCar) {
-          // Aplicamos la fuerza del golpe recibido
           myCar.setVelocity(data.velocityX, data.velocityY);
 
-          console.log("¡Me han golpeado!");
-          // Feedback visual
           myCar.setTint(0xff0000);
           this.time.delayedCall(200, () => myCar.clearTint());
         }
         break;
 
       case 'gameOver':
-        const winnerCar = data.winner === this.myRole
-          ? this.players.get(this.myRole)
-          : this.players.get(this.opponentRole);
-        this.scene.start("WinningScene", { winner: winnerCar });
+        this.socket.onclose = null;
         this.socket.close();
+
+        const winnerId = data.winner;
+
+        this.scene.start("WinningScene", {
+          winner: { id: winnerId }
+        });
         break;
 
       case 'opponentDisconnected':
-        this.waitingText.setText("Oponente desconectado").setVisible(true);
-        this.physics.pause();
+        this.handleDisconnection("Oponente desconectado");
         break;
     }
   }
@@ -123,11 +119,9 @@ export class GameSceneOnline extends GameScene {
     this.waitingText.setVisible(false);
     this.gameStarted = true;
 
-    // Crear coches
     const car1 = new Car(this, "player1", 740, 715, "coche");
     const car2 = new Car(this, "player2", 750, 745, "car_red");
 
-    // Activar físicas
     this.physics.world.enable([car1, car2]);
     car1.setCollideWorldBounds(true);
     car2.setCollideWorldBounds(true);
@@ -135,10 +129,8 @@ export class GameSceneOnline extends GameScene {
     this.players.set("player1", car1);
     this.players.set("player2", car2);
 
-    // Configurar colisiones
     this.setupCollisions();
 
-    // Inputs
     this.setupMyInput();
   }
 
@@ -149,12 +141,10 @@ export class GameSceneOnline extends GameScene {
 
     this.lastHitTime = 0;
 
-    // --- COLISIÓN ENTRE COCHES (CORREGIDO: Solo un bloque) ---
+
     this.physics.add.collider(myCar, opponentCar, () => {
       const now = Date.now();
 
-      // Solo procesamos el golpe si han pasado 500ms desde el último y voy rápido
-      // Esto evita el "spam" de mensajes
       if (now - this.lastHitTime > 500 && myCar.body.speed > 20) {
 
         this.lastHitTime = now; // Resetear timer
@@ -173,21 +163,21 @@ export class GameSceneOnline extends GameScene {
 
     // --- OTRAS COLISIONES (PowerUps, Checkpoints, Meta) ---
     this.players.forEach((car) => {
-      
+
       // PowerUps con Respawn
       this.physics.add.overlap(car, this.powerUps, (car, powerUp) => {
-          if (!powerUp.active) return; // Si está invisible, no hacer nada
+        if (!powerUp.active) return; // Si está invisible, no hacer nada
 
-          this.applyPowerUp(car, powerUp);
+        this.applyPowerUp(car, powerUp);
 
-          // Desactivar y ocultar (en lugar de destroy)
-          powerUp.disableBody(true, true);
+        // Desactivar y ocultar (en lugar de destroy)
+        powerUp.disableBody(true, true);
 
-          // Reaparecer a los 2.5 segundos
-          this.time.delayedCall(2500, () => {           
-            powerUp.enableBody(true, powerUp.x, powerUp.y, true, true);
-          });
+        // Reaparecer a los 2.5 segundos
+        this.time.delayedCall(2500, () => {
+          powerUp.enableBody(true, powerUp.x, powerUp.y, true, true);
         });
+      });
 
       // Checkpoints
       this.physics.add.overlap(car, this.CheckPointLine, () => {
@@ -215,6 +205,36 @@ export class GameSceneOnline extends GameScene {
       a: Phaser.Input.Keyboard.KeyCodes.A,
       s: Phaser.Input.Keyboard.KeyCodes.S,
       d: Phaser.Input.Keyboard.KeyCodes.D
+    });
+  }
+
+  handleDisconnection(mensaje) {
+    if (this.waitingText) {
+        this.waitingText.setText(mensaje).setVisible(true);
+    }
+
+    this.physics.pause();
+
+    const menuBtn = this.add.text(640, 550, "Volver al Menú", {
+        fontSize: "32px",
+        color: "#ffffff",
+        backgroundColor: "#000088",
+        padding: { x: 20, y: 10 }
+    })
+    .setOrigin(0.5)
+    .setInteractive({ useHandCursor: true })
+    .setDepth(3000); 
+
+    menuBtn.on('pointerover', () => menuBtn.setBackgroundColor('#0000ff'));
+    menuBtn.on('pointerout', () => menuBtn.setBackgroundColor('#000088'));
+    
+    menuBtn.on('pointerdown', () => {
+        if (this.socket) {
+            this.socket.onclose = null;
+            this.socket.close();
+        }
+
+        this.scene.start("MenuScene");
     });
   }
 
@@ -271,20 +291,15 @@ export class GameSceneOnline extends GameScene {
     const opponent = this.players.get(this.opponentRole);
     if (!opponent) return;
 
-    // Rotación directa
     opponent.setRotation(Phaser.Math.DegToRad(data.angle));
 
-    // Interpolación de posición para evitar que se atraviesen
     const distance = Phaser.Math.Distance.Between(opponent.x, opponent.y, data.x, data.y);
 
     if (distance > 150) {
-      // Si está muy lejos (lag), teletransportar
       opponent.setPosition(data.x, data.y);
     } else if (distance > 10) {
-      // Si está cerca, moverse hacia allá físicamente
       this.physics.moveTo(opponent, data.x, data.y, data.speed + 100);
     } else {
-      // Si está en su sitio, parar
       opponent.body.setVelocity(0);
       if (distance < 2) opponent.setPosition(data.x, data.y);
     }
