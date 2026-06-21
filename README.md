@@ -236,7 +236,7 @@ Respecto a la jugabilidad, hemos priorizado el tener un prototipo funcional que 
 
 Finalmente, hemos diseño e implementado assets propios, como son los coches, el escenario y el logotipo.
 
-# FASE 3   
+# FASE 3   (RECUPERACIÓN)
 
 Tras el feedback recibido de la fase 2, nos hemos centrado en solucionar los problemas graves y desarrollar la API REST.
 
@@ -248,10 +248,10 @@ Las mejoras se han basado en:
 - Retocar el menú
 - Retocar la pantalla de juego
 
-  Respecto a la API, se ha añadido una pantalla de login desde la cual se pueden registrar los jugadores.
-  Los jugadores pueden registrar su nombre y su color de coche (en un futuro se implementaría que el color de coche se correspondiese con el usuario)
+Respecto a la API, se ha añadido una pantalla de login desde la cual se pueden registrar los jugadores.
+Los jugadores pueden registrar su nombre y su color de coche (en un futuro se implementaría que el color de coche se correspondiese con el usuario)
 
-  Estos datos se guardan en una carpeta llamada data en un json.
+Estos datos se guardan en una carpeta llamada data en un json.
 
 # FASE 4
 
