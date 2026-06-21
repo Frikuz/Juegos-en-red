@@ -248,11 +248,20 @@ Las mejoras se han basado en:
 - Retocar el menú
 - Retocar la pantalla de juego
 
+  Respecto a la API, se ha añadido una pantalla de login desde la cual se pueden registrar los jugadores.
+  Los jugadores pueden registrar su nombre y su color de coche (en un futuro se implementaría que el color de coche se correspondiese con el usuario)
+
+  Estos datos se guardan en una carpeta llamada data en un json.
+
 # FASE 4
 
 En la fase 4, nos hemos centrado en desarrollar los websockets y así poder tener dos jugadores a la vez.
 Tras implementarlo de primeras, tuvimos que solucionar problemas, ya que las colisiones no se traducían correctamente y los power-ups no aparecían.
 
-No nos planteamos entregar la fase 3 por separado previa a la implementación de los websockets, por lo que ambas entregas son las mismas.
+# FASE 5
 
+El juego se ha publicado en las siguientes plataformas:
 
+- NEWGROUNDS: https://www.newgrounds.com/portal/view/1038292
+- ITCH.IO: https://blodjor.itch.io/a-por-la-33
+- GAMEJOLT: https://gamejolt.com/games/a_por_la_33/1078710
